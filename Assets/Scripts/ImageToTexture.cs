@@ -3,27 +3,8 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Unity.Collections;
 using UnityEngine;
 
-public class ImageToTexture : MonoBehaviour
+public class ImageToTexture
 {
-    public GameObject spritePrefab;
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            GameObject obj = InstantiateSpriteFixedAspectRatio(spritePrefab, "Assets/Images/Mona Lisa.png", 150f);
-            DownscaleSpriteTexture(obj.GetComponent<SpriteRenderer>().sprite, 0.01f);
-        }
-    }
-
-
     public static Sprite LoadSprite(string filename)
     {
         if (string.IsNullOrEmpty(filename)) return null;
@@ -46,7 +27,7 @@ public class ImageToTexture : MonoBehaviour
     public static GameObject InstantiateSprite(GameObject prefab, string filename, float width, float height)
     {
         Sprite sprite = LoadSprite(filename);
-        GameObject obj = Instantiate(prefab);
+        GameObject obj = GameObject.Instantiate(prefab);
         if (obj == null) return null;
         
         float r_wid = width / sprite.texture.width;
@@ -61,7 +42,7 @@ public class ImageToTexture : MonoBehaviour
     public static GameObject InstantiateSpriteFixedAspectRatio(GameObject prefab, string filename, float height)
     {
         Sprite sprite = LoadSprite(filename);
-        GameObject obj = Instantiate(prefab);
+        GameObject obj = GameObject.Instantiate(prefab);
         if (obj == null) return null;
         
         float ratio = height / sprite.texture.height;
@@ -72,11 +53,10 @@ public class ImageToTexture : MonoBehaviour
         return obj;
     }
 
-    public static void DownscaleSpriteTexture(Sprite sprite, float downscale_ratio)
+    public static Texture2D DownscaleSpriteTexture(Texture2D tex, float downscale_ratio)
     {
-        if (downscale_ratio >= 1f) return; // cannot upscale
-        Texture2D tex = sprite.texture;
-        if (tex == null) return;
+        if (downscale_ratio >= 1f) return null; // cannot upscale
+        if (tex == null) return null;
 
         int r_width = (int)(tex.width * downscale_ratio);
         int r_height = (int)(tex.height * downscale_ratio);
@@ -113,7 +93,9 @@ public class ImageToTexture : MonoBehaviour
         }
 
         // Debug.Log(new_pixels.Length);
-        tex.SetPixels(new_pixels);
-        tex.Apply();
+        Texture2D new_tex = new Texture2D(tex.width, tex.height);
+        new_tex.SetPixels(new_pixels);
+        new_tex.Apply();
+        return new_tex;
     }
 }

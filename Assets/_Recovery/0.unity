@@ -450,10 +450,9 @@ MonoBehaviour:
   MinimizedPosition: {x: 0, y: -3}
   ImagePath: Assets/Images/Mona Lisa.png
   StartViewTimer: 1
-  maxTiles: 10
-  PixelationTime: 1
-  PostPixelViewTime: 0.5
-  ViewTransitionTimer: 0.5
+  maxTiles: 5
+  PixelationTime: 0.5
+  ViewTransitionTimer: 0.25
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
