@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TemplateImage : MonoBehaviour
@@ -22,6 +23,9 @@ public class TemplateImage : MonoBehaviour
     public string ImagePath = "Assets/Images/Mona Lisa.png";
     SpriteRenderer spriteRenderer;
     Sprite sprite;
+
+
+    InputHandler input;
 
 
 
@@ -57,8 +61,6 @@ public class TemplateImage : MonoBehaviour
 
     State viewState = State.Start;
 
-    bool state_transition = true;
-
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -77,6 +79,10 @@ public class TemplateImage : MonoBehaviour
             return;
         }
 
+
+        GameObject ih = GameObject.FindGameObjectWithTag("InputHandler");
+        if (ih != null) input = ih.GetComponent<InputHandler>();
+
         EnterState(State.Start);
     }
 
@@ -93,6 +99,9 @@ public class TemplateImage : MonoBehaviour
                 break;
             case State.Minimized:
                 MinimizedUpdate();
+                break;
+            case State.EnlargedView:
+                MaximizedUpdate();
                 break;
         }
     }
@@ -137,6 +146,9 @@ public class TemplateImage : MonoBehaviour
                 view_timer = ViewTransitionTimer;
                 break;
             case State.EnlargedView:
+                PreviousScale = GetTargetScale(viewState);
+                TargetScale = GetTargetScale(state);
+                view_timer = ViewTransitionTimer;
                 break;
         }
 
@@ -180,5 +192,47 @@ public class TemplateImage : MonoBehaviour
         // lerp to scale
         Vector3 newScale = Vector3.Lerp(PreviousScale, TargetScale, t);
         transform.localScale = newScale;
+
+
+        // handle input
+        if (CheckIfClicked()) EnterState(State.EnlargedView);
+    }
+
+
+    void MaximizedUpdate()
+    {
+        view_timer = Mathf.Max(0f, view_timer - Time.deltaTime);
+        float t = 1f - (view_timer / ViewTransitionTimer);
+        
+        // lerp to position
+        Vector3 newPos = Vector3.Lerp(MinimizedPosition, EnglargedPosition, t);
+        transform.position = newPos;
+
+        // lerp to scale
+        Vector3 newScale = Vector3.Lerp(PreviousScale, TargetScale, t);
+        transform.localScale = newScale;
+
+        if (CheckIfClicked()) EnterState(State.Minimized);
+    }
+
+
+    bool CheckIfClicked()
+    {
+        bool clicked = false;
+
+        if (input != null)
+        {
+            // Debug.Log(input.inputs.Count);
+            foreach (PlayerInput cmd in input.inputs)
+            {
+                if (InputHandler.ScreenPositionCollidesWithObject(cmd.position, gameObject))
+                {
+                    Debug.Log(cmd.position);
+                    clicked = !clicked;
+                }
+            }
+        }
+
+        return clicked;
     }
 }
